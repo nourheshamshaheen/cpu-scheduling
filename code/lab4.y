@@ -47,30 +47,40 @@ processes_list:
 
 flag:
 	STATS {
-		// flag of struct = 1				
+		// Scheduler::currentScheduler.flag = 1;
 	}
 	| TRACE {
-		// flag of struct = 0
+		// Scheduler::currentScheduler.flag = 0;
 	}
 
 policy:
 	DIGIT DASH DOUBLE_DIGIT {
-		// insert into list of policies tuple id, quantum
-
+		SimpleScheduler temp;
+		// temp.policy_id = $1;
+		// temp.quantum = $3;
+		// Scheduler::currentScheduler.insertSimpleScheduler(temp);
 	}
 	| DIGIT {
-		// insert into list of policies id, 0
+		// SimpleScheduler temp;
+		// temp.policy_id = $1;
+		// temp.quantum = 0;
+		// Scheduler::currentScheduler.insertSimpleScheduler(temp);
 	}
 	;
 
 timespan:
 	DIGIT {
-		// insert into current_scheduling timespan
+		// Scheduler::currentScheduler.timespan=$1;
 	}
 	;
 
 process:
 	CHAR COMMA DOUBLE_DIGIT COMMA DOUBLE_DIGIT {
+		// Process temp;
+		// temp.name = $1;
+		// temp.arrival = $3;
+		// temp.service = $5;
+		// Scheduler::currentScheduler.insertProcess(temp);
 
 	}
 	;
