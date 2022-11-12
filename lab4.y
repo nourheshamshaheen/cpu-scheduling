@@ -1,19 +1,6 @@
 
-/*
- * CS-413 Spring 98
- * shell.y: parser for shell
- *
- * This parser compiles the following grammar:
- *
- *	cmd [arg]* [> filename]
- *
- * you must extend it to understand the complete shell grammar
- *
- */
-
 %token	<string_val> WORD
 
-%token 	NOTOKEN GREAT NEWLINE LESS AMPS APPEND PIPE GREATAMPS APPENDAMPS
 
 %union	{
 		char   *string_val;
@@ -25,6 +12,7 @@ extern "C"
 	int yylex();
 	void yyerror (char const *s);
 }
+
 #define yylex yylex
 #include <stdio.h>
 #include "command.h"
@@ -76,11 +64,6 @@ arg_list:
 	| /* can be empty */
 	;
 
-// input:
-// 	WORD
-// 	| CHAR 
-// 	|
-// 	;
 
 argument:
 	WORD {
