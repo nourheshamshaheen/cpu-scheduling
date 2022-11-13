@@ -51,7 +51,70 @@ SimpleScheduler::print()
 void
 SimpleScheduler::execute(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
+	switch(policy_id)
+	{
+		case 1:
+			FCFS(status,timespan,Processes,numberOfProcesses);
+		case 2:
+			RR(status,timespan,Processes,numberOfProcesses,quantum);
+		case 3:
+			SPN(status,timespan,Processes,numberOfProcesses);
+		case 4:
+			SRT(status,timespan,Processes,numberOfProcesses);
+		case 5:
+			HRRN(status,timespan,Processes,numberOfProcesses);
+		case 6:
+			FB1(status,timespan,Processes,numberOfProcesses);
+		case 7:
+			FB2(status,timespan,Processes,numberOfProcesses);
+		case 8:
+			AGING(status,timespan,Processes,numberOfProcesses);
+	}
 }
+
+void
+FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses, int quantum)
+{
+	
+}
+void
+SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+Aging(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+
+
+
 
 // FUNCTIONS OF PROCESS
 
