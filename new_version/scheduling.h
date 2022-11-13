@@ -9,6 +9,7 @@ struct Process{
     int finish;
     int norm;
     int turn;
+    int priority;
     Process();
     std::vector<char> listVisualization;
 };
@@ -18,7 +19,7 @@ struct SimpleScheduler{
     int policy_id;
     int quantum;
     SimpleScheduler();
-    void execute(); // Make a copy of listProcesses
+    void execute(); // Make a copy of listProcesses First
     void print();
 };
 
@@ -26,14 +27,15 @@ struct SimpleScheduler{
 struct Scheduler{
     int numberSimpleSchedulers;
     std::vector<SimpleScheduler> listSimpleSchedulers;
-    bool flag;
+    int status;
     int timespan;
     Scheduler();
-    void insertSimpleScheduler(SimpleScheduler simpleScheduler);
+    void insertSimpleScheduler(SimpleScheduler * simpleScheduler);
     static Scheduler currentScheduler;
     int numberOfProcesses;
     std::vector<Process> listProcesses;
     void insertProcess(Process process);
+    void print();
 };
 
 
