@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <regex>
+#include <queue>
 #include  <bits/stdc++.h>
   
 using namespace std;
@@ -12,9 +13,113 @@ using namespace std;
 
 // utils
 
+// void
+// SimpleScheduler::print(char res[][],int timespan,int numberOfProcesses)
+// {
+// 	cout << "FCFS  ";
+// 	for(int a = 0; a < numberOfProcesses; a++)
+// 	{
+// 		cout << a << " ";
+// 	}
+// 	cout << '\n';
+// 	cout << "------------------------------------------------" << endl;
+// 	for(int a = 0; a < numberOfProcesses; a++)
+// 	{
+// 		for(int b = 0; b < timespan; b++)
+// 		{
+// 		cout << res[a][b] << "|";
+// 		}
+// 		cout << endl;
+// 	} 
+// 	cout << "------------------------------------------------" << endl;
+
+// }
+
+
 void
 FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
+	// Logic
+
+	// if queue is not empty and cpu_free = true
+	// pop process from queue get index
+	// cpu_free = false
+	// curr_process.service--
+	// result[idx][i] = *
+	// if curr_process.service = 0
+	// cpu_free = true
+
+	
+	// Initialize Queue
+	// Initialize array for each process
+	char result[numberOfProcesses][timespan];
+	for(int a = 0; a < numberOfProcesses; a++)
+			{
+				for(int b = 0; b < timespan; b++)
+				{
+				result[a][b]=' ';
+				}
+			}
+	queue<int> readyQueue;
+	bool cpu_free = true;
+	int currIdx = -1;
+	for (int i = 0; i < timespan; i++)
+	{
+		// Check if new process arrives
+		for (int j=0; j < numberOfProcesses; j++)
+		{
+			if(Processes[j]->arrival == i)
+			{
+				// Push process index in ready Queue
+				readyQueue.push(j);
+			}
+			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
+			{
+				result[j][i] = '.';
+			}
+		}
+		if (!readyQueue.empty() && cpu_free)
+		{
+			currIdx=readyQueue.front();
+			readyQueue.pop();
+			cpu_free = false;
+		}
+		if(!cpu_free && currIdx != -1)
+		{
+			Processes[currIdx]->tempService--;
+			result[currIdx][i] = '*';
+		}
+		if (Processes[currIdx]->tempService == 0)
+		{
+			cpu_free = true;
+			Processes[currIdx]->finish = i;
+			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
+			Processes[currIdx]->norm = (Processes[currIdx]->turn / Processes[currIdx]->service);
+
+			currIdx = -1;
+		}
+
+	}
+	// for (int i=0;i<numberOfProcesses;i++)
+	// {
+	// 	cout << "Turnaroud " << Processes[i]->name << " : " << Processes[i]->norm << endl;
+	// }
+	// cout << "FCFS  ";
+	// for(int a = 0; a < timespan; a++)
+	// {
+	// 	cout << a << " ";
+	// }
+	// cout << '\n';
+	// cout << "------------------------------------------------" << endl;
+	// for(int a = 0; a < numberOfProcesses; a++)
+	// {
+	// 	for(int b = 0; b < timespan; b++)
+	// 	{
+	// 	cout << result[a][b] << "|";
+	// 	}
+	// 	cout << endl;
+	// } 
+	// cout << "------------------------------------------------" << endl;
 
 }
 void
@@ -25,6 +130,90 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 void
 SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
+	// Shortest Process Next
+	// Logic
+	// if queue is not empty and cpu_free = true
+	// pop process from queue get index [with smallest service time]
+	// cpu_free = false
+	// curr_process.service--
+	// result[idx][i] = *
+	// if curr_process.service = 0
+	// cpu_free = true
+
+	
+	// Initialize Priority Queue
+	// Initialize array for each process
+	char result[numberOfProcesses][timespan];
+	for(int a = 0; a < numberOfProcesses; a++)
+			{
+				for(int b = 0; b < timespan; b++)
+				{
+				result[a][b]=' ';
+				}
+			}
+	map<int, int> service_indicator;
+	priority_queue<int> readyQueue;
+	bool cpu_free = true;
+	int currIdx = -1;
+	for (int i = 0; i < timespan; i++)
+	{
+		// Check if new process arrives
+		for (int j=0; j < numberOfProcesses; j++)
+		{
+			if(Processes[j]->arrival == i)
+			{
+				service_indicator.insert(pair<int, int>(-1 * Processes[j]->service, j));
+				// Push process service time in ready Queue
+				readyQueue.push(Processes[j]->service * -1);
+			}
+			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
+			{
+				result[j][i] = '.';
+			}
+		}
+		if (!readyQueue.empty() && cpu_free)
+		{
+			currIdx=service_indicator.at(readyQueue.top());
+			//printf("%d\n", readyQueue.top());
+			readyQueue.pop();
+			cpu_free = false;
+		}
+		if(!cpu_free && currIdx != -1)
+		{
+			Processes[currIdx]->tempService--;
+			result[currIdx][i] = '*';
+		}
+		if (Processes[currIdx]->tempService == 0)
+		{
+			cpu_free = true;
+			Processes[currIdx]->finish = i;
+			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
+			Processes[currIdx]->norm = (Processes[currIdx]->turn / Processes[currIdx]->service);
+
+			currIdx = -1;
+		}
+
+	}
+	// for (int i=0;i<numberOfProcesses;i++)
+	// {
+	// 	cout << "Turnaroud " << Processes[i]->name << " : " << Processes[i]->norm << endl;
+	// }
+	// cout << "SPN  ";
+	// for(int a = 0; a < timespan; a++)
+	// {
+	// 	cout << a << " ";
+	// }
+	// cout << '\n';
+	// cout << "------------------------------------------------" << endl;
+	// for(int a = 0; a < numberOfProcesses; a++)
+	// {
+	// 	for(int b = 0; b < timespan; b++)
+	// 	{
+	// 	cout << result[a][b] << "|";
+	// 	}
+	// 	cout << endl;
+	// } 
+	// cout << "------------------------------------------------" << endl;
 
 }
 void
@@ -35,6 +224,87 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 void
 HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
+// Highest Response Ratio Next
+	// Logic
+
+	// Initialize Priority Queue
+	// Initialize array for each process
+	char result[numberOfProcesses][timespan];
+	for(int a = 0; a < numberOfProcesses; a++)
+			{
+				for(int b = 0; b < timespan; b++)
+				{
+				result[a][b]=' ';
+				}
+			}
+	map<int, int> service_indicator;
+	priority_queue<int> readyQueue;
+	int waitingTimes[numberOfProcesses] = {0};
+	bool cpu_free = true;
+	int currIdx = -1;
+	for (int i = 0; i < timespan; i++)
+	{
+		// Check if new process arrives
+		for (int j=0; j < numberOfProcesses; j++)
+		{
+			if(Processes[j]->arrival == i)
+			{
+				service_indicator.insert(pair<int, int>(-1 * Processes[j]->service, j));
+				// Push process service time in ready Queue
+				float responseRatio = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service
+				readyQueue.push(Processes[j]->responseRatio);
+			}
+			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
+			{
+				result[j][i] = '.';
+				waitingTimes[j]++;
+				// change value
+
+			}
+		}
+		if (!readyQueue.empty() && cpu_free)
+		{
+			currIdx=service_indicator.at(readyQueue.top());
+			//printf("%d\n", readyQueue.top());
+			readyQueue.pop();
+			cpu_free = false;
+		}
+		if(!cpu_free && currIdx != -1)
+		{
+			Processes[currIdx]->tempService--;
+			result[currIdx][i] = '*';
+		}
+		if (Processes[currIdx]->tempService == 0)
+		{
+			cpu_free = true;
+			Processes[currIdx]->finish = i;
+			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
+			Processes[currIdx]->norm = (Processes[currIdx]->turn / Processes[currIdx]->service);
+
+			currIdx = -1;
+		}
+
+	}
+	for (int i=0;i<numberOfProcesses;i++)
+	{
+		cout << "Turnaroud " << Processes[i]->name << " : " << Processes[i]->norm << endl;
+	}
+	cout << "HRRN  ";
+	for(int a = 0; a < timespan; a++)
+	{
+		cout << a << " ";
+	}
+	cout << '\n';
+	cout << "------------------------------------------------" << endl;
+	for(int a = 0; a < numberOfProcesses; a++)
+	{
+		for(int b = 0; b < timespan; b++)
+		{
+		cout << result[a][b] << "|";
+		}
+		cout << endl;
+	} 
+	cout << "------------------------------------------------" << endl;
 
 }
 void
@@ -87,11 +357,7 @@ SimpleScheduler::SimpleScheduler()
 {
 
 }
-void
-SimpleScheduler::print()
-{
-	
-}
+
 void
 SimpleScheduler::execute(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
@@ -232,6 +498,7 @@ void parseInput()
 		P->name=parsed[0].c_str()[0] ;
 		P->arrival=stoi(parsed[1]);
 		P->service=stoi(parsed[2]);
+		P->tempService=stoi(parsed[2]);
 		if (parsed.size() == 4)
 		{
 			P->priority = stoi(parsed[3]);

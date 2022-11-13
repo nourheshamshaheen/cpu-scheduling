@@ -6,8 +6,9 @@ struct Process{
     char name;
     int arrival;
     int service;
+    int tempService;
     int finish;
-    int norm;
+    float norm;
     int turn;
     int priority;
     Process();
