@@ -10,6 +10,50 @@
 using namespace std;
 
 
+// utils
+
+void
+FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses, int quantum)
+{
+	
+}
+void
+SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+void
+AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+
+}
+
+
 // FUNCTIONS OF SCHEDULER
 
 Scheduler::Scheduler()
@@ -72,47 +116,6 @@ SimpleScheduler::execute(bool status, int timespan, std::vector<Process*> Proces
 	}
 }
 
-void
-FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-void
-RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses, int quantum)
-{
-	
-}
-void
-SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-void
-SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-void
-HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-void
-FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-void
-FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-void
-Aging(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
-{
-
-}
-
 
 
 
@@ -125,9 +128,6 @@ Process::Process()
 
 
 Scheduler* S = new Scheduler;
-
-
-// UTILS
 
 void parseInput()
 {
@@ -240,7 +240,6 @@ void parseInput()
 	}
 
 }
-
 
 
 int 
