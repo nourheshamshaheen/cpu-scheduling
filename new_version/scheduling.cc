@@ -5,58 +5,68 @@
 #include <vector>
 #include <sstream>
 #include <regex>
+#include  <bits/stdc++.h>
+  
 using namespace std;
 
-enum PolicyName {
-	// REVERSE ENUM
-	FCFS = 1,
-	RR = 2,
-	SPN = 3,
-	SRT = 4,
-	HRRN = 5,
-	FB1 = 6,
-	FB2i = 7,
-	Aging = 8
-};
+
+// FUNCTIONS OF SCHEDULER
 
 Scheduler::Scheduler()
 {
 	numberSimpleSchedulers = 0;
 }
-
-SimpleScheduler::SimpleScheduler()
+void 
+Scheduler::insertSimpleScheduler(SimpleScheduler* simpleScheduler)
 {
-
+	listSimpleSchedulers.push_back(simpleScheduler);
 }
-Process::Process()
+void 
+Scheduler::insertProcess(Process* P)
 {
-	priority = 0;
-}
-void
-Scheduler::insertSimpleScheduler(SimpleScheduler * simpleScheduler)
-{
-	// SimpleScheduler simpleSchedulerCurrent = simpleScheduler;
-	// listSimpleSchedulers.push_back(simpleSchedulerCurrent);
+	listProcesses.push_back(P);
 }
 void
 Scheduler::print()
 {
 	cout << "WELCOME TO OUR SIMPLE SCHEDULER" << endl;
-	cout << "1- Mode of visualization: " << to_string(status) << endl;
-	cout << "2- Scheduling policies: " << to_string(numberSimpleSchedulers) << endl;
-	cout << "3- Timespan: " << to_string(timespan) << endl;
-	cout << "4- Number of processes: " << to_string(numberOfProcesses) << endl;
-	cout << "5- Processes: " << "Not yet supported." << endl;
+	cout << "1- Mode of visualization: " << status << endl;
+	cout << "2- Scheduling policies: " << numberSimpleSchedulers << endl;
+	cout << "3- Timespan: " << timespan << endl;
+	cout << "4- Number of processes: " << numberOfProcesses << endl;
+	cout << "5- Processes: " << listProcesses[1]->name << endl;
 }
 
+// FUNCTIONS OF SIMPLE SCHEDULER
+
+SimpleScheduler::SimpleScheduler()
+{
+
+}
 void
 SimpleScheduler::print()
 {
-	// PolicyName pn;
-	// pn = policy_id;
+	
 }
-int 
-main()
+void
+SimpleScheduler::execute(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+{
+}
+
+// FUNCTIONS OF PROCESS
+
+Process::Process()
+{
+	priority = 0;
+}
+
+
+Scheduler* S = new Scheduler;
+
+
+// UTILS
+
+void parseInput()
 {
 	// Taking input from user in the following format:
 
@@ -68,13 +78,13 @@ main()
 	LINE 5 - END: PROCESS DESCRIPTION
 	*/
 
-    string flag;
+    char flag [8];
 	string policiesList;
     string timespan;
     string numberOfProcesses;
     vector <string> processes;
 
-    getline(cin, flag);
+    cin.getline(flag, 8);
     // cout << flag << endl;
     getline(cin, policiesList);
     // cout << policiesList << endl;
@@ -94,12 +104,11 @@ main()
 
 	// Initializing structs
 
-	Scheduler* S = new Scheduler;
-
 	// Assigning numeric variables to Scheduler S
 	S->numberOfProcesses = stoi(numberOfProcesses);
-	int res = flag.compare("stats");
-	S->status = res;
+	char* res = strstr(flag, "trace");
+	if(res) S->status = 0;
+	else S->status = 1;
 	S->timespan = stoi(timespan);
 
 	// Creating new simple schedulers according to different policies
@@ -109,7 +118,7 @@ main()
 	regex reg("[, ]+");
     sregex_token_iterator iter(policiesList.begin(), policiesList.end(), reg, -1);
     sregex_token_iterator end;
-     vector<string> policies(iter, end);
+	vector<string> policies(iter, end);
  
     for (auto &s: policies) {
         policiesParsedList.push_back(s);
@@ -127,20 +136,20 @@ main()
  
 	if (parsed.size() == 2)
 	{
-		cout << "ID: " << parsed[0] << endl;
-		cout << "Quantum: " << parsed[1] << endl;
+		// cout << "ID: " << parsed[0] << endl;
+		// cout << "Quantum: " << parsed[1] << endl;
 		SimpleScheduler *SS	= new SimpleScheduler;
 		SS->policy_id = stoi(parsed[0]);
 		SS->quantum = stoi(parsed[1]);
-		// S->insertSimpleScheduler(SS);
+		S->insertSimpleScheduler(SS);
 	}
 
 	if (parsed.size() == 1)
 	{
-		cout << "ID: " << parsed[0] << endl;
+		// cout << "ID: " << parsed[0] << endl;
 		SimpleScheduler *SS	= new SimpleScheduler;
 		SS->policy_id = stoi(parsed[0]);
-		// S->insertSimpleScheduler(SS);
+		S->insertSimpleScheduler(SS);
 	}
 
 	}
@@ -153,24 +162,33 @@ main()
     	sregex_token_iterator iter(policy.begin(), policy.end(), reg, -1);
     	sregex_token_iterator end;
     	vector<string> parsed(iter, end);
-		cout << "Process name: " << parsed[0] << endl;
-		cout << "Arrival time: " << parsed[1] << endl;
-		cout << "Service time: " << parsed[2] << endl;
+		// cout << "Process name: " << parsed[0] << endl;
+		// cout << "Arrival time: " << parsed[1] << endl;
+		// cout << "Service time: " << parsed[2] << endl;
 		Process *P = new Process;
-		// P->name=parsed[0].c_str() ;
+		P->name=parsed[0].c_str()[0] ;
 		P->arrival=stoi(parsed[1]);
 		P->service=stoi(parsed[2]);
 		if (parsed.size() == 4)
 		{
 			P->priority = stoi(parsed[3]);
 		}
+		S->insertProcess(P);
 	}
 
-	S->print();
-	SimpleScheduler * SS = new SimpleScheduler;
-	SS->print();
+}
 
 
+
+int 
+main()
+{
+	parseInput();
+	for(int i = 0; i < S->numberSimpleSchedulers; i++)
+	{
+		S->listSimpleSchedulers[i]->execute(S->status, S->timespan, S->listProcesses, S->numberOfProcesses);	
+	}
+		
 	return 0;
 }
 

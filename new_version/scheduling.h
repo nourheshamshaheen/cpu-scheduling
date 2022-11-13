@@ -19,22 +19,22 @@ struct SimpleScheduler{
     int policy_id;
     int quantum;
     SimpleScheduler();
-    void execute(); // Make a copy of listProcesses First
+    void execute(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses); // Make a copy of listProcesses First
     void print();
 };
 
 
 struct Scheduler{
     int numberSimpleSchedulers;
-    std::vector<SimpleScheduler> listSimpleSchedulers;
-    int status;
+    std::vector<SimpleScheduler*> listSimpleSchedulers;
+    bool status;
     int timespan;
     Scheduler();
-    void insertSimpleScheduler(SimpleScheduler * simpleScheduler);
-    static Scheduler currentScheduler;
+    void insertSimpleScheduler(SimpleScheduler* simpleScheduler);
+    //static Scheduler currentScheduler;
     int numberOfProcesses;
-    std::vector<Process> listProcesses;
-    void insertProcess(Process process);
+    std::vector<Process*> listProcesses;
+    void insertProcess(Process* process);
     void print();
 };
 
