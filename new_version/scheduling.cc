@@ -7,6 +7,7 @@
 #include <regex>
 #include <queue>
 #include  <bits/stdc++.h>
+#include "updatable_priority_queue.h"
   
 using namespace std;
 
@@ -17,14 +18,18 @@ using namespace std;
 void
 FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
+	////////////////////////////////////////////
 	// Logic
 	// if queue is not empty and cpu_free = true
-	// pop process from queue get index
-	// cpu_free = false
-	// curr_process.service--
-	// result[idx][i] = *
+		// pop process from queue get index
+		// cpu_free = false
+		// curr_process.service--
+		// result[idx][i] = *
 	// if curr_process.service = 0
-	// cpu_free = true
+		// cpu_free = true
+
+	//////////////////////////
+
 	// Initialize Queue
 	// Initialize array for each process
 	char result[numberOfProcesses][timespan];
@@ -284,11 +289,10 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 			currIdx = -1;
 		}
 	}
-
-		// TRACE
+	// TRACE
 	if(status == 0)
 	{
-		cout << "RR- ";
+		cout << "RR-";
 		cout << quantum <<"  ";
 		for(int a = 0; a <= timespan; a++)
 		{
@@ -314,11 +318,12 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 			cout << endl;
 		} 
 		cout << "------------------------------------------------" << endl;
+		cout << endl;
 	}
 		// STATS
 	else if(status ==1)
 	{
-		cout << "RR- ";
+		cout << "RR-";
 		cout << quantum <<endl;
 				cout << "Process    |";
 		for(int a = 0; a < numberOfProcesses; a++)
@@ -393,9 +398,9 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
 		else printf("%.2f|\n", normTurn);
-		
 
-
+		cout << endl;
+	
 	}
 
 	
@@ -426,8 +431,8 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				result[a][b]=' ';
 				}
 			}
-	map<int, int> service_indicator;
-	priority_queue<int> readyQueue;
+	// map<int, int> service_indicator;
+	priority_queue<pair<int, int>> readyQueue;
 	bool cpu_free = true;
 	int currIdx = -1;
 	for (int i = 0; i < timespan; i++)
@@ -437,9 +442,8 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		{
 			if(Processes[j]->arrival == i)
 			{
-				service_indicator.insert(pair<int, int>(-1 * Processes[j]->service, j));
 				// Push process service time in ready Queue
-				readyQueue.push(Processes[j]->service * -1);
+				readyQueue.push(make_pair(Processes[j]->service * -1, j));
 			}
 			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
 			{
@@ -448,7 +452,8 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		}
 		if (!readyQueue.empty() && cpu_free)
 		{
-			currIdx=service_indicator.at(readyQueue.top());
+			pair<int, int> top = readyQueue.top();
+			currIdx = top.second;
 			//printf("%d\n", readyQueue.top());
 			readyQueue.pop();
 			cpu_free = false;
@@ -497,6 +502,7 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			cout << endl;
 		} 
 		cout << "------------------------------------------------" << endl;
+		cout << endl;
 	}
 		// STATS
 	else if(status ==1)
@@ -575,107 +581,357 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
 		else printf("%.2f|\n", normTurn);
-		
-
+		cout << endl;
 
 	}
-
 	
-	
-
 }
 
 void
 SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
+	// Shortest Remaining time
+	// Initialize array for each process
+	char result[numberOfProcesses][timespan];
+	for(int a = 0; a < numberOfProcesses; a++)
+	{
+				for(int b = 0; b < timespan; b++)
+				{
+				result[a][b]=' ';
+				}
+	}
+	better_priority_queue::updatable_priority_queue<int,int> readyQueue;
+	bool cpu_free = true;
+	int currIdx = -1;
+	for (int i = 0; i < timespan; i++)
+	{
+		// Check if new process arrives
+		for (int j=0; j < numberOfProcesses; j++)
+		{
+			if(Processes[j]->arrival == i)
+			{
+				// Check if we should preempt or not
+				if(!cpu_free && currIdx != -1 && Processes[j]->service < Processes[currIdx]->tempService){
+						Processes[currIdx]->preempted = true;
+						result[currIdx][i] = '.';
+						readyQueue.push(currIdx, Processes[currIdx]->tempService * -1);
+						currIdx = j;
+				}
+				else{
+					readyQueue.push(j, Processes[j]->service * -1);
+				}
+			}
+			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService || Processes[j]->preempted)
+			{
+				result[j][i] = '.';
+			}
+		}
+		if (!readyQueue.empty() && cpu_free)
+		{
+			currIdx = readyQueue.pop_value().key;
+			Processes[currIdx]->preempted = false;
+			//printf("%d\n", readyQueue.top());
+			cpu_free = false;
+		}
+		if(!cpu_free && currIdx != -1)
+		{
+			Processes[currIdx]->tempService--;
+			result[currIdx][i] = '*';
+		}
+		if (Processes[currIdx]->tempService == 0)
+		{
+			cpu_free = true;
+			Processes[currIdx]->finish = i;
+			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
+			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
+			Processes[currIdx]->finish++;
+			currIdx = -1;
+		}
 
+	}
+	// TRACE
+	if(status == 0)
+	{
+		cout << "SRT   ";
+		for(int a = 0; a <= timespan; a++)
+		{
+			if(a>9)
+			{
+				cout << a%10 << " ";
+			}
+			else
+			{
+				cout << a << " ";
+			}
+		}
+		cout << '\n';
+		cout << "------------------------------------------------" << endl;
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			cout << Processes[a]->name << "     |";
+
+			for(int b = 0; b < timespan; b++)
+			{
+			cout << result[a][b] << "|";
+			}
+			cout << endl;
+		} 
+		cout << "------------------------------------------------" << endl;
+		cout << endl;
+	}
+		// STATS
+	else if(status ==1)
+	{
+		cout << "SRT"<<endl;
+		cout << "Process    |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			cout << "  " << Processes[a]->name << "  |";
+		} 
+		cout << endl;
+		cout << "Arrival    |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->arrival>9)
+			{
+			cout << " " << Processes[a]->arrival << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->arrival << "  |";
+			}
+		} 
+		cout << endl;
+
+		cout << "Service    |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->service>9)
+			{
+			cout << " " << Processes[a]->service << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->service << "  |";
+			}		} 
+			cout << " Mean|" << endl;
+		cout << "Finish     |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->finish>9)
+			{
+			cout << " " << Processes[a]->finish << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->finish << "  |";
+			}		
+			}
+			cout << "-----|" << endl;
+ 
+		float meanTurn = 0;
+		cout << "Turnaround |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->turn>9)
+			{
+			cout << " " << Processes[a]->turn << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->turn << "  |";
+			}
+			meanTurn += Processes[a]->turn;	
+		} 
+		meanTurn = meanTurn/numberOfProcesses;
+		if(meanTurn<10) printf(" %.2f|\n", meanTurn);
+		else printf("%.2f|\n", meanTurn);
+		float normTurn = 0;
+		cout << "NormTurn   |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			printf(" %.2f|", Processes[a]->norm);
+			normTurn += Processes[a]->norm;
+		} 
+		normTurn = normTurn/numberOfProcesses;
+		if(normTurn<10) printf(" %.2f|\n", normTurn);
+		else printf("%.2f|\n", normTurn);
+		cout << endl;
+	}
 }
+
 void
 HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-// // Highest Response Ratio Next
-// 	// Logic
+	// Highest Response Ratio Next
 
-// 	// Initialize Priority Queue
-// 	// Initialize array for each process
-// 	char result[numberOfProcesses][timespan];
-// 	for(int a = 0; a < numberOfProcesses; a++)
-// 			{
-// 				for(int b = 0; b < timespan; b++)
-// 				{
-// 				result[a][b]=' ';
-// 				}
-// 			}
-// 	map<int, int> service_indicator;
-// 	priority_queue<int> readyQueue;
-// 	int waitingTimes[numberOfProcesses] = {0};
-// 	bool cpu_free = true;
-// 	int currIdx = -1;
-// 	for (int i = 0; i < timespan; i++)
-// 	{
-// 		// Check if new process arrives
-// 		for (int j=0; j < numberOfProcesses; j++)
-// 		{
-// 			if(Processes[j]->arrival == i)
-// 			{
-// 				service_indicator.insert(pair<int, int>(-1 * Processes[j]->service, j));
-// 				// Push process service time in ready Queue
-// 				float responseRatio = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
-// 				readyQueue.push(Processes[j]->responseRatio);
-// 			}
-// 			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
-// 			{
-// 				result[j][i] = '.';
-// 				waitingTimes[j]++;
-// 				// change value
+	// Initialize array for each process
+	char result[numberOfProcesses][timespan];
+	for(int a = 0; a < numberOfProcesses; a++){
+				for(int b = 0; b < timespan; b++)
+				{
+				result[a][b]=' ';
+				}
+	}
+	better_priority_queue::updatable_priority_queue<int,int> readyQueue;
+	// priority_queue<pair<int, int>> readyQueue;
+	int waitingTimes[numberOfProcesses] = {0};
+	bool cpu_free = true;
+	int currIdx = -1;
+	for (int i = 0; i < timespan; i++)
+	{
+		// Check if new process arrives
+		for (int j=0; j < numberOfProcesses; j++)
+		{
+			if(Processes[j]->arrival == i)
+			{
+				// Push process service time in ready Queue
+				float rspR = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
+				readyQueue.push(j, rspR);
+			}
+			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
+			{
+				result[j][i] = '.';
+				waitingTimes[j]++;
+				float rspR = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
+				readyQueue.update(j, rspR);
+				// change value
 
-// 			}
-// 		}
-// 		if (!readyQueue.empty() && cpu_free)
-// 		{
-// 			currIdx=service_indicator.at(readyQueue.top());
-// 			//printf("%d\n", readyQueue.top());
-// 			readyQueue.pop();
-// 			cpu_free = false;
-// 		}
-// 		if(!cpu_free && currIdx != -1)
-// 		{
-// 			Processes[currIdx]->tempService--;
-// 			result[currIdx][i] = '*';
-// 		}
-// 		if (Processes[currIdx]->tempService == 0)
-// 		{
-// 			cpu_free = true;
-// 			Processes[currIdx]->finish = i;
-// 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
-// 			Processes[currIdx]->norm = (Processes[currIdx]->turn / Processes[currIdx]->service);
+			}
+		}
+		if (!readyQueue.empty() && cpu_free)
+		{
+			currIdx = readyQueue.pop_value().key;
+			//printf("%d\n", readyQueue.top());
+			cpu_free = false;
+		}
+		if(!cpu_free && currIdx != -1)
+		{
+			Processes[currIdx]->tempService--;
+			result[currIdx][i] = '*';
+		}
+		if (Processes[currIdx]->tempService == 0)
+		{
+			cpu_free = true;
+			Processes[currIdx]->finish = i;
+			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
+			Processes[currIdx]->norm = (Processes[currIdx]->turn / Processes[currIdx]->service);
 
-// 			currIdx = -1;
-// 		}
+			currIdx = -1;
+		}
 
-// 	}
-// 	for (int i=0;i<numberOfProcesses;i++)
-// 	{
-// 		cout << "Turnaroud " << Processes[i]->name << " : " << Processes[i]->norm << endl;
-// 	}
-// 	cout << "HRRN  ";
-// 	for(int a = 0; a < timespan; a++)
-// 	{
-// 		cout << a << " ";
-// 	}
-// 	cout << '\n';
-// 	cout << "------------------------------------------------" << endl;
-// 	for(int a = 0; a < numberOfProcesses; a++)
-// 	{
-// 		for(int b = 0; b < timespan; b++)
-// 		{
-// 		cout << result[a][b] << "|";
-// 		}
-// 		cout << endl;
-// 	} 
-// 	cout << "------------------------------------------------" << endl;
+	}
+			// TRACE
+	if(status == 0)
+	{
+		cout << "HRRN   ";
+		for(int a = 0; a <= timespan; a++)
+		{
+			if(a>9)
+			{
+				cout << a%10 << " ";
+			}
+			else
+			{
+				cout << a << " ";
+			}
+		}
+		cout << '\n';
+		cout << "------------------------------------------------" << endl;
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			cout << Processes[a]->name << "     |";
 
+			for(int b = 0; b < timespan; b++)
+			{
+			cout << result[a][b] << "|";
+			}
+			cout << endl;
+		} 
+		cout << "------------------------------------------------" << endl;
+		cout << endl;
+	}
+		// STATS
+	else if(status ==1)
+	{
+		cout << "HRRN"<<endl;
+		cout << "Process    |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			cout << "  " << Processes[a]->name << "  |";
+		} 
+		cout << endl;
+		cout << "Arrival    |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->arrival>9)
+			{
+			cout << " " << Processes[a]->arrival << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->arrival << "  |";
+			}
+		} 
+		cout << endl;
+
+		cout << "Service    |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->service>9)
+			{
+			cout << " " << Processes[a]->service << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->service << "  |";
+			}		} 
+			cout << " Mean|" << endl;
+		cout << "Finish     |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->finish>9)
+			{
+			cout << " " << Processes[a]->finish << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->finish << "  |";
+			}		
+			}
+			cout << "-----|" << endl;
+ 
+		float meanTurn = 0;
+		cout << "Turnaround |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			if (Processes[a]->turn>9)
+			{
+			cout << " " << Processes[a]->turn << "  |";
+			}
+			else
+			{			
+			cout << "  " << Processes[a]->turn << "  |";
+			}
+			meanTurn += Processes[a]->turn;	
+		} 
+		meanTurn = meanTurn/numberOfProcesses;
+		if(meanTurn<10) printf(" %.2f|\n", meanTurn);
+		else printf("%.2f|\n", meanTurn);
+		float normTurn = 0;
+		cout << "NormTurn   |";
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			printf(" %.2f|", Processes[a]->norm);
+			normTurn += Processes[a]->norm;
+		} 
+		normTurn = normTurn/numberOfProcesses;
+		if(normTurn<10) printf(" %.2f|\n", normTurn);
+		else printf("%.2f|\n", normTurn);
+
+	}
 }
+
 void
 FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
@@ -1265,7 +1521,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 void
 AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-
+	
 }
 
 
@@ -1448,6 +1704,7 @@ void parseInput()
 		// cout << "Arrival time: " << parsed[1] << endl;
 		// cout << "Service time: " << parsed[2] << endl;
 		Process *P = new Process;
+		P->preempted=false;
 		P->name=parsed[0].c_str()[0] ;
 		P->arrival=stoi(parsed[1]);
 		P->service=stoi(parsed[2]);

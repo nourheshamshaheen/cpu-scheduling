@@ -7,6 +7,8 @@ struct Process{
     int arrival;
     int service;
     int tempService;
+    float rspR;
+    bool preempted;
     int finish;
     float norm;
     int turn;
@@ -17,6 +19,7 @@ struct Process{
 
 
 struct SimpleScheduler{
+    // std::vector<Process*> listProcesses;
     int policy_id;
     int quantum;
     SimpleScheduler();
