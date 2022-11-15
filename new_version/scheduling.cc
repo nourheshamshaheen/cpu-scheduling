@@ -84,7 +84,7 @@ FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 	// TRACE
 	if(status == 0)
 	{
-		cout << "FCFS ";
+		cout << "FCFS  ";
 		for(int a = 0; a <= timespan; a++)
 		{
 			if(a>9)
@@ -106,14 +106,14 @@ FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout <<" " << endl;
 		} 
-		cout << "------------------------------------------------" << endl;
+		cout << "------------------------------------------------" << endl << endl;
 	}
 		// STATS
 	else if(status ==1)
 	{
-		cout << "FCFS " << endl;
+		cout << "FCFS" << endl;
 		cout << "Process    |";
 		for(int a = 0; a < numberOfProcesses; a++)
 		{
@@ -187,8 +187,7 @@ FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
 		else printf("%.2f|\n", normTurn);
-		
-
+		cout << endl;		
 
 	}
 
@@ -315,10 +314,9 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout << " " << endl;
 		} 
-		cout << "------------------------------------------------" << endl;
-		cout << endl;
+		cout << "------------------------------------------------" << endl << endl;
 	}
 		// STATS
 	else if(status ==1)
@@ -397,8 +395,7 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 		} 
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
-		else printf("%.2f|\n", normTurn);
-
+else printf("%.2f|\n", normTurn);
 		cout << endl;
 	
 	}
@@ -499,10 +496,9 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout << " "<< endl;
 		} 
-		cout << "------------------------------------------------" << endl;
-		cout << endl;
+		cout << "------------------------------------------------" << endl << endl;
 	}
 		// STATS
 	else if(status ==1)
@@ -581,7 +577,7 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
 		else printf("%.2f|\n", normTurn);
-		cout << endl;
+		cout << endl;		
 
 	}
 	
@@ -674,7 +670,7 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout << " " << endl;
 		} 
 		cout << "------------------------------------------------" << endl;
 		cout << endl;
@@ -756,7 +752,7 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
 		else printf("%.2f|\n", normTurn);
-		cout << endl;
+		cout << endl;		
 	}
 }
 
@@ -815,7 +811,8 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			cpu_free = true;
 			Processes[currIdx]->finish = i;
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
-			Processes[currIdx]->norm = (Processes[currIdx]->turn / Processes[currIdx]->service);
+			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
+			Processes[currIdx]->finish++;
 
 			currIdx = -1;
 		}
@@ -824,7 +821,7 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			// TRACE
 	if(status == 0)
 	{
-		cout << "HRRN   ";
+		cout << "HRRN  ";
 		for(int a = 0; a <= timespan; a++)
 		{
 			if(a>9)
@@ -846,7 +843,7 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout << " " << endl;
 		} 
 		cout << "------------------------------------------------" << endl;
 		cout << endl;
@@ -928,7 +925,7 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 		normTurn = normTurn/numberOfProcesses;
 		if(normTurn<10) printf(" %.2f|\n", normTurn);
 		else printf("%.2f|\n", normTurn);
-
+		cout << endl;
 	}
 }
 
@@ -957,7 +954,6 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 	queue<int> RQ3;
 	queue<int> RQ4;
 	queue<int> RQ5;
-	queue<int> RQ6;
 
 
 
@@ -1085,9 +1081,6 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 						case 5:
 							RQ5.push(currIdx);
 							break;
-						case 6:
-							RQ6.push(currIdx);
-							break;
 					}
 				}
 				// cout << "Quantum done, pushed back to queue." << endl;
@@ -1103,8 +1096,8 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->finish = i;
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
-			currIdx = -1;
 			Processes[currIdx]->finish++;
+			currIdx = -1;
 
 		}
 
@@ -1134,9 +1127,10 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout << " " << endl;
 		} 
 		cout << "------------------------------------------------" << endl;
+		cout << endl;
 	}
 	// STATS
 	else if(status ==1)
@@ -1212,11 +1206,11 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			normTurn += Processes[a]->norm;
 		} 
 		printf(" %.2f|\n", normTurn/numberOfProcesses);
-		
+		cout << endl;
 
 
 	}
-	
+
 }
 void
 FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
@@ -1402,6 +1396,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->finish = i;
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.00 / Processes[currIdx]->service*1.00);
+			Processes[currIdx]->finish++;
 			currIdx = -1;
 		}
 
@@ -1434,14 +1429,14 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 			cout << result[a][b] << "|";
 			}
-			cout << endl;
+			cout <<" "<< endl;
 		} 
-		cout << "------------------------------------------------" << endl;
+		cout << "------------------------------------------------" << endl << endl;
 	}
 	// STATS
 	else if(status ==1)
 	{
-		cout << "FB-2i " << endl;
+		cout << "FB-2i" << endl;
 		cout << "Process    |";
 		for(int a = 0; a < numberOfProcesses; a++)
 		{
@@ -1512,9 +1507,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			normTurn += Processes[a]->norm;
 		} 
 		printf(" %.2f|\n", normTurn/numberOfProcesses);
-		
-
-
+		cout << endl;
 	}
 	
 }
@@ -1604,7 +1597,7 @@ Process::Process()
 
 Scheduler* S = new Scheduler;
 
-void parseInput()
+vector<string> parseInput()
 {
 	// Taking input from user in the following format:
 
@@ -1715,17 +1708,40 @@ void parseInput()
 		}
 		S->insertProcess(P);
 	}
-
+return processes;
 }
 
 
 int 
 main()
 {
-	parseInput();
+	vector <string> processes = parseInput();
+
 	for(int i = 0; i < S->numberSimpleSchedulers; i++)
 	{
 		S->listSimpleSchedulers[i]->execute(S->status, S->timespan, S->listProcesses, S->numberOfProcesses);	
+		// WILL MAKE IT A SEPARATE FUNCTION LATER, UPDATE THE REFERENCE TO PROCESSES
+		S->listProcesses.clear();
+		for (int i = 0; i < S->numberOfProcesses; i++ )
+	{
+		string policy = processes[i];
+		regex reg("[, ]+");
+    	sregex_token_iterator iter(policy.begin(), policy.end(), reg, -1);
+    	sregex_token_iterator end;
+    	vector<string> parsed(iter, end);
+		Process *P = new Process;
+		P->preempted=false;
+		P->name=parsed[0].c_str()[0] ;
+		P->arrival=stoi(parsed[1]);
+		P->service=stoi(parsed[2]);
+		P->tempService=stoi(parsed[2]);
+		if (parsed.size() == 4)
+		{
+			P->priority = stoi(parsed[3]);
+		}
+		S->insertProcess(P);
+	}
+
 	}
 		
 	return 0;
