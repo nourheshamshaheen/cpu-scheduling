@@ -13,6 +13,31 @@ using namespace std;
 
 // utils
 
+struct myComp {
+    constexpr bool operator()(
+        pair<int, int> const& x,
+        pair<int, int> const& y)
+        const noexcept
+    {
+		if(x.first == y.first)
+			return x.second > y.second;
+		
+        return x.first < y.first;
+    }
+};
+
+struct myComp2 {
+    constexpr bool operator()(
+        pair<float, int> const& x,
+        pair<float, int> const& y)
+        const noexcept
+    {
+		if(x.first == y.first)
+			return x.second > y.second;
+		
+        return x.first < y.first;
+    }
+};
 
 void
 FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
@@ -595,7 +620,7 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				result[a][b]=' ';
 				}
 	}
-	priority_queue<pair<int,int>> readyQueue;
+	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> readyQueue;
 	bool cpu_free = true;
 	int currIdx = -1;
 	for (int i = 0; i < timespan; i++)
@@ -770,8 +795,13 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 				result[a][b]=' ';
 				}
 	}
-	priority_queue<pair<int,int>> readyQueue;
-	// priority_queue<pair<int, int>> readyQueue;
+	priority_queue<pair<float,int>, vector<pair<float,int>>, myComp2> readyQueue;	
+	priority_queue<pair<float,int>, vector<pair<float,int>>, myComp2> readyQueue_new;
+	priority_queue<pair<float,int>, vector<pair<float,int>>, myComp2> emptyQueue;
+	// // priority_queue<pair<float, int>> readyQueue;
+	// priority_queue<pair<float, int>> readyQueue;
+	// priority_queue<pair<float, int>> readyQueue_new;
+	// priority_queue<pair<float, int>> emptyQueue;
 	int waitingTimes[numberOfProcesses] = {0};
 	bool cpu_free = true;
 	int currIdx = -1;
@@ -783,25 +813,33 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			if(Processes[j]->arrival == i)
 			{
 				// Push process service time in ready Queue
-				float rspR = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
+				float rspR = (waitingTimes[j]+Processes[j]->service)*1.0/Processes[j]->service;
 				readyQueue.push(make_pair(rspR, j));
 			}
 			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
 			{
 				result[j][i] = '.';
 				waitingTimes[j]++;
-				float rspR = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
-				// readyQueue.update(j, rspR);
-				// change value
-
+				float new_rspR = (waitingTimes[j]+Processes[j]->service)*1.0/Processes[j]->service;
+				while(!readyQueue.empty())
+				{
+					pair<float, int> top = readyQueue.top();
+					readyQueue.pop();
+					float rspR = top.first;
+					int l = top.second;
+					if(l == j)
+						rspR = new_rspR;
+					readyQueue_new.push(make_pair(rspR, l));		
+				}
+				readyQueue = readyQueue_new;
+				readyQueue_new = emptyQueue;
 			}
 		}
 		if (!readyQueue.empty() && cpu_free)
 		{
-			pair<int, int> top = readyQueue.top();
+			pair<float, int> top = readyQueue.top();
 			currIdx = top.second;
 			readyQueue.pop();
-			//printf("%d\n", readyQueue.top());
 			cpu_free = false;
 		}
 		if(!cpu_free && currIdx != -1)
@@ -809,14 +847,14 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			Processes[currIdx]->tempService--;
 			result[currIdx][i] = '*';
 		}
-		if (Processes[currIdx]->tempService == 0)
+		// cout << Processes[currIdx] -> tempService << endl;
+		if (Processes[currIdx]->tempService <= 0)
 		{
 			cpu_free = true;
 			Processes[currIdx]->finish = i;
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
 			Processes[currIdx]->finish++;
-
 			currIdx = -1;
 		}
 
@@ -1540,8 +1578,98 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 	
 }
 void
-AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
+AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses, int quantum)
 {
+	// Initialize array for each process
+	char result[numberOfProcesses][timespan];
+	int current_quantum = quantum;
+	for(int a = 0; a < numberOfProcesses; a++){
+				for(int b = 0; b < timespan; b++)
+				{
+				result[a][b]=' ';
+				}
+	}
+	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> readyQueue;
+	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> readyQueue_new;
+	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> emptyQueue;	
+	// priority_queue<pair<int, int>> readyQueue;
+	bool cpu_free = true;
+	int currIdx = -1;
+	for (int i = 0; i < timespan; i++)
+	{
+		// Check if new process arrives
+		for (int j=0; j < numberOfProcesses; j++)
+		{
+			if(Processes[j]->arrival == i)
+			{
+				// Push process service time in ready Queue
+				readyQueue.push(make_pair(Processes[j]->priority, j));
+			}
+			if(Processes[j]->arrival <= i)
+			{
+				result[j][i] = '.';
+
+			}
+		}
+		if(current_quantum <= 0)
+		{
+			cpu_free = true;
+			readyQueue.push(make_pair(Processes[currIdx]->priority, currIdx));
+		}
+		if (!readyQueue.empty() && cpu_free)
+		{
+			pair<int, int> top = readyQueue.top();
+			currIdx = top.second;
+			readyQueue.pop();
+			cpu_free = false;
+			current_quantum = quantum;
+		}
+		if(!cpu_free && currIdx != -1)
+		{
+			result[currIdx][i] = '*';
+			current_quantum--;
+		}
+		while(!readyQueue.empty())
+		{
+			pair<int, int> top = readyQueue.top();
+			int tempPriority = top.first + 1;
+			int l = top.second;
+			readyQueue.pop();
+			readyQueue_new.push(make_pair(tempPriority, l));
+		}
+		readyQueue = readyQueue_new;
+		readyQueue_new = emptyQueue;
+	}
+			// TRACE
+	if(status == 0)
+	{
+		cout << "AGING ";
+		for(int a = 0; a <= timespan; a++)
+		{
+			if(a>9)
+			{
+				cout << a%10 << " ";
+			}
+			else
+			{
+				cout << a << " ";
+			}
+		}
+		cout << '\n';
+		cout << "------------------------------------------------" << endl;
+		for(int a = 0; a < numberOfProcesses; a++)
+		{
+			cout << Processes[a]->name << "     |";
+
+			for(int b = 0; b < timespan; b++)
+			{
+			cout << result[a][b] << "|";
+			}
+			cout << " " << endl;
+		} 
+		cout << "------------------------------------------------" << endl;
+		cout << endl;
+	}
 	
 }
 
@@ -1589,25 +1717,25 @@ SimpleScheduler::execute(bool status, int timespan, std::vector<Process*> Proces
 			FCFS(status,timespan,Processes,numberOfProcesses);
 			break;
 		case 2:
-			RR(status,timespan,Processes,numberOfProcesses,quantum);
+			RR(status, timespan, Processes, numberOfProcesses, quantum);
 			break;
 		case 3:
-			SPN(status,timespan,Processes,numberOfProcesses);
+			SPN(status, timespan, Processes, numberOfProcesses);
 			break;
 		case 4:
-			SRT(status,timespan,Processes,numberOfProcesses);
+			SRT(status, timespan, Processes, numberOfProcesses);
 			break;
 		case 5:
-			HRRN(status,timespan,Processes,numberOfProcesses);
+			HRRN(status, timespan, Processes, numberOfProcesses);
 			break;
 		case 6:
-			FB1(status,timespan,Processes,numberOfProcesses);
+			FB1(status, timespan, Processes, numberOfProcesses);
 			break;
 		case 7:
-			FB2(status,timespan,Processes,numberOfProcesses);
+			FB2(status, timespan, Processes, numberOfProcesses);
 			break;
 		case 8:
-			AGING(status,timespan,Processes,numberOfProcesses);
+			AGING(status, timespan, Processes, numberOfProcesses, quantum);
 			break;
 	}
 }
@@ -1721,15 +1849,14 @@ vector<string> parseInput()
     	sregex_token_iterator iter(policy.begin(), policy.end(), reg, -1);
     	sregex_token_iterator end;
     	vector<string> parsed(iter, end);
-		// cout << "Process name: " << parsed[0] << endl;
-		// cout << "Arrival time: " << parsed[1] << endl;
-		// cout << "Service time: " << parsed[2] << endl;
 		Process *P = new Process;
 		P->preempted=false;
 		P->name=parsed[0].c_str()[0] ;
 		P->arrival=stoi(parsed[1]);
 		P->service=stoi(parsed[2]);
 		P->tempService=stoi(parsed[2]);
+		P->priority=stoi(parsed[2]);
+		P->tempPriority=stoi(parsed[2]);
 		if (parsed.size() == 4)
 		{
 			P->priority = stoi(parsed[3]);

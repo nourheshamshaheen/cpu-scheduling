@@ -13,6 +13,7 @@ struct Process{
     float norm;
     int turn;
     int priority;
+    int tempPriority;
     Process();
     std::vector<char> listVisualization;
 };
