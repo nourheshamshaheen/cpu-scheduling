@@ -954,7 +954,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 	queue<int> RQ3;
 	queue<int> RQ4;
 	queue<int> RQ5;
-
+	int queueStatus[6]={0};
 
 
 	for(int a = 0; a < numberOfProcesses; a++)
@@ -976,6 +976,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				// prioriry, RQ0 because it has just arrived.
 				// cout << "Pushing " << j << " into Queue." << endl;
 				RQ0.push(j);
+				queueStatus[0]++;
 			}
 			if(Processes[j]->arrival <= i && doneList[j] != 1 )
 			{
@@ -989,6 +990,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ0.front();
 				RQ0.pop();
+				queueStatus[0]--;
 				cpu_free = false;
 			}
 		}
@@ -998,6 +1000,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ1.front();
 				RQ1.pop();
+				queueStatus[1]--;
 				cpu_free = false;
 			}
 		}
@@ -1007,6 +1010,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ2.front();
 				RQ2.pop();
+				queueStatus[2]--;
 				cpu_free = false;
 			}
 		}
@@ -1016,6 +1020,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ3.front();
 				RQ3.pop();
+				queueStatus[3]--;
 				cpu_free = false;
 			}
 		}
@@ -1025,6 +1030,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ4.front();
 				RQ4.pop();
+				queueStatus[4]--;
 				cpu_free = false;
 			}
 		}
@@ -1034,6 +1040,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ5.front();
 				RQ5.pop();
+				queueStatus[5]--;
 				cpu_free = false;
 			}
 		}
@@ -1053,10 +1060,18 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 					count++;
 				}
 			}
-			if (count == 0 && quantumList[0]==1) quantumList[0]=0; 
 			if (quantumList[currIdx] == quantum)
 			{
-				// cout << "Now in process: " << currIdx << endl;
+				// IF ALL OTHER QUEUES ARE EMPTY, STAY IN THE SAME QUEUE
+				int sum  = 0;
+				for (int i=0;i<6;i++)
+				{
+					sum+=queueStatus[i];
+				}
+				if (Processes[currIdx]->tempService != 0 && queueStatus[queueTracker[currIdx]]-sum == 0 && count==0)
+				{
+					queueTracker[currIdx]--;
+				}
 				queueTracker[currIdx]++;
 				if(Processes[currIdx]->tempService != 0)
 				{
@@ -1082,11 +1097,13 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 							RQ5.push(currIdx);
 							break;
 					}
+					queueStatus[queueTracker[currIdx]]++;
 				}
 				// cout << "Quantum done, pushed back to queue." << endl;
 				// cout << "Pushing " << currIdx << " into Queue." << endl;
 				quantumList[currIdx] = 0;
 				cpu_free = true;
+		
 			}	
 		}
 		if (Processes[currIdx]->tempService == 0)
@@ -1239,8 +1256,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 	queue<int> RQ3;
 	queue<int> RQ4;
 	queue<int> RQ5;
-	queue<int> RQ6;
-
+	int queueStatus[6]={0};
 
 
 	for(int a = 0; a < numberOfProcesses; a++)
@@ -1262,6 +1278,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				// prioriry, RQ0 because it has just arrived.
 				// cout << "Pushing " << j << " into Queue." << endl;
 				RQ0.push(j);
+				queueStatus[0]++;
 			}
 			if(Processes[j]->arrival <= i && doneList[j] != 1 )
 			{
@@ -1275,6 +1292,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ0.front();
 				RQ0.pop();
+				queueStatus[0]--;
 				cpu_free = false;
 				quantum = 1;
 			}
@@ -1285,6 +1303,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ1.front();
 				RQ1.pop();
+				queueStatus[1]--;
 				cpu_free = false;
 				quantum = 2;
 			}
@@ -1295,6 +1314,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ2.front();
 				RQ2.pop();
+				queueStatus[2]--;
 				cpu_free = false;
 				quantum = 4;
 
@@ -1306,6 +1326,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ3.front();
 				RQ3.pop();
+				queueStatus[3]--;
 				cpu_free = false;
 				quantum = 8;
 
@@ -1317,6 +1338,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ4.front();
 				RQ4.pop();
+				queueStatus[4]--;
 				cpu_free = false;
 				quantum = 16;
 
@@ -1328,6 +1350,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				currIdx=RQ5.front();
 				RQ5.pop();
+				queueStatus[5]--;
 				cpu_free = false;
 				quantum = 32;
 
@@ -1340,7 +1363,6 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->tempService--;
 			result[currIdx][i] = '*';
 			quantumList[currIdx]++;
-			// Check if no other processes come in the next time slot
 			int count = 0;
 			for (int j=0; j < numberOfProcesses; j++)
 			{
@@ -1348,13 +1370,18 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				{
 					count++;
 				}
-			}
-			if (count == 0 && quantumList[0]==1) quantumList[0]=0; 
-		
+			}	
 			if (quantumList[currIdx] == quantum)
 			{
-				// cout << "Now in process: " << currIdx << endl;
-				// cout << "Quantum: " << quantumList[currIdx] << endl;
+				int sum  = 0;
+				for (int i=0;i<6;i++)
+				{
+					sum+=queueStatus[i];
+				}
+				if (Processes[currIdx]->tempService != 0 && queueStatus[queueTracker[currIdx]]-sum == 0 && count==0)
+				{
+					queueTracker[currIdx]--;
+				}
 
 				queueTracker[currIdx]++;
 				if(Processes[currIdx]->tempService != 0)
@@ -1380,11 +1407,9 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 						case 5:
 							RQ5.push(currIdx);
 							break;
-						case 6:
-							RQ6.push(currIdx);
-							break;
 					}
 				}
+				queueStatus[queueTracker[currIdx]]++;
 				quantumList[currIdx] = 0;
 				cpu_free = true;
 			}	
