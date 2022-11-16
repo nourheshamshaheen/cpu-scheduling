@@ -7,7 +7,6 @@
 #include <regex>
 #include <queue>
 #include  <bits/stdc++.h>
-#include "updatable_priority_queue.h"
   
 using namespace std;
 
@@ -596,7 +595,7 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				result[a][b]=' ';
 				}
 	}
-	better_priority_queue::updatable_priority_queue<int,int> readyQueue;
+	priority_queue<pair<int,int>> readyQueue;
 	bool cpu_free = true;
 	int currIdx = -1;
 	for (int i = 0; i < timespan; i++)
@@ -610,11 +609,11 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				if(!cpu_free && currIdx != -1 && Processes[j]->service < Processes[currIdx]->tempService){
 						Processes[currIdx]->preempted = true;
 						result[currIdx][i] = '.';
-						readyQueue.push(currIdx, Processes[currIdx]->tempService * -1);
+						readyQueue.push(make_pair(Processes[currIdx]->tempService * -1, currIdx));
 						currIdx = j;
 				}
 				else{
-					readyQueue.push(j, Processes[j]->service * -1);
+					readyQueue.push(make_pair(Processes[j]->service * -1, j));
 				}
 			}
 			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService || Processes[j]->preempted)
@@ -624,7 +623,9 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		}
 		if (!readyQueue.empty() && cpu_free)
 		{
-			currIdx = readyQueue.pop_value().key;
+			pair<int, int> top = readyQueue.top();
+			currIdx = top.second;
+			readyQueue.pop();
 			Processes[currIdx]->preempted = false;
 			//printf("%d\n", readyQueue.top());
 			cpu_free = false;
@@ -769,7 +770,7 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 				result[a][b]=' ';
 				}
 	}
-	better_priority_queue::updatable_priority_queue<int,int> readyQueue;
+	priority_queue<pair<int,int>> readyQueue;
 	// priority_queue<pair<int, int>> readyQueue;
 	int waitingTimes[numberOfProcesses] = {0};
 	bool cpu_free = true;
@@ -783,21 +784,23 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			{
 				// Push process service time in ready Queue
 				float rspR = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
-				readyQueue.push(j, rspR);
+				readyQueue.push(make_pair(rspR, j));
 			}
 			if(Processes[j]->arrival <= i && Processes[j]->service == Processes[j]->tempService )
 			{
 				result[j][i] = '.';
 				waitingTimes[j]++;
 				float rspR = (waitingTimes[j]+Processes[j]->service)/Processes[j]->service;
-				readyQueue.update(j, rspR);
+				// readyQueue.update(j, rspR);
 				// change value
 
 			}
 		}
 		if (!readyQueue.empty() && cpu_free)
 		{
-			currIdx = readyQueue.pop_value().key;
+			pair<int, int> top = readyQueue.top();
+			currIdx = top.second;
+			readyQueue.pop();
 			//printf("%d\n", readyQueue.top());
 			cpu_free = false;
 		}
