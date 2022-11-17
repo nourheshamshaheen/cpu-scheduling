@@ -1,3 +1,6 @@
+// Lara HossamElDin Mostafa	6853
+// Nour Hesham Shaheen 7150
+
 #include <iostream>
 #include <string>
 #include "scheduling.h"
@@ -7,7 +10,6 @@
 #include <regex>
 #include <queue>
 #include  <bits/stdc++.h>
-  
 using namespace std;
 
 
@@ -42,21 +44,19 @@ struct myComp2 {
 void
 FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-	////////////////////////////////////////////
-	// Logic
-	// if queue is not empty and cpu_free = true
-		// pop process from queue get index
-		// cpu_free = false
-		// curr_process.service--
-		// result[idx][i] = *
-	// if curr_process.service = 0
-		// cpu_free = true
-
-	//////////////////////////
-
+	/* Logic: 
+	- Check if Ready_Queue is not empty and CPU is free
+	- If Yes: Pop process from Queue, mark the CPU as busy, update the remaining service time of this process
+	 - When processe's remaing service time is 0, mark CPU as free
+	*/ 
+	
 	// Initialize Queue
 	// Initialize array for each process
 	char result[numberOfProcesses][timespan];
+	queue<int> readyQueue;
+	bool cpu_free = true;
+	int currIdx = -1;
+
 	for(int a = 0; a < numberOfProcesses; a++)
 			{
 				for(int b = 0; b < timespan; b++)
@@ -64,9 +64,6 @@ FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 				result[a][b]=' ';
 				}
 			}
-	queue<int> readyQueue;
-	bool cpu_free = true;
-	int currIdx = -1;
 	for (int i = 0; i < timespan; i++)
 	{
 		// Check if new process arrives
@@ -100,8 +97,7 @@ FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service*1.0);
 			Processes[currIdx]->finish++;
-
-			currIdx = -1;
+			// currIdx = -1;
 		}
 
 	}
@@ -219,17 +215,12 @@ FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 void
 RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses, int quantum)
 {
-// Logic
-
-	// First process that arrives is seleced and sent for execution for the
-	// specified time quantum. Process is stopped at a timer (quantum) and gets
-	// sent to the end of the queue. Scheduler selects the next ready process for the same
-	// quantum and iterates again until completion.
-
+/*
+	First process that arrives is seleced and sent for execution for the specified time quantum. 
+	Process is stopped at a timer (quantum) and gets sent to the end of the queue. 
+	Scheduler selects the next ready process for the same quantum and iterates again until completion.
+*/
 	
-	// Initialize Queue
-	// Initialize array for each process
-	// cout << "Quantum is: " << quantum << endl;
 	char result[numberOfProcesses][timespan];
 	int quantumList[numberOfProcesses] = {0};
 	int doneList[numberOfProcesses]={0};
@@ -252,7 +243,6 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 			if(Processes[j]->arrival == i && pushed == false)
 			{
 				// Push process index in ready Queue
-				// cout << "Pushing " << j << " into Queue." << endl;
 				readyQueue.push(j);
 			}
 			if(Processes[j]->arrival <= i && doneList[j] != 1 )
@@ -274,8 +264,6 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 			quantumList[currIdx]++;
 			if (quantumList[currIdx] == quantum)
 			{
-				// cout << "Now in process: " << currIdx << endl;
-				// cout << "Service Time: " << Processes[currIdx]->tempService << endl;
 				if(Processes[currIdx]->tempService != 0)
 				{
 
@@ -293,8 +281,6 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 							result[j][i+1] = '.';
 						}
 					}
-					// cout << "Quantum done, pushed back to queue." << endl;
-					// cout << "Pushing " << currIdx << " into Queue." << endl;
 					readyQueue.push(currIdx);
 					quantumList[currIdx] = 0;
 					cpu_free = true;
@@ -309,7 +295,7 @@ RR(bool status, int timespan, std::vector<Process*> Processes,int numberOfProces
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service*1.0);
 			Processes[currIdx]->finish++;
-			currIdx = -1;
+			// currIdx = -1;
 		}
 	}
 	// TRACE
@@ -431,17 +417,6 @@ else printf("%.2f|\n", normTurn);
 void
 SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-	// Shortest Process Next
-	// Logic
-	// if queue is not empty and cpu_free = true
-	// pop process from queue get index [with smallest service time]
-	// cpu_free = false
-	// curr_process.service--
-	// result[idx][i] = *
-	// if curr_process.service = 0
-	// cpu_free = true
-
-	
 	// Initialize Priority Queue
 	// Initialize array for each process
 	char result[numberOfProcesses][timespan];
@@ -475,7 +450,6 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 		{
 			pair<int, int> top = readyQueue.top();
 			currIdx = top.second;
-			//printf("%d\n", readyQueue.top());
 			readyQueue.pop();
 			cpu_free = false;
 		}
@@ -491,7 +465,7 @@ SPN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
 			Processes[currIdx]->finish++;
-			currIdx = -1;
+			// currIdx = -1;
 		}
 
 	}
@@ -667,7 +641,7 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
 			Processes[currIdx]->finish++;
-			currIdx = -1;
+			// currIdx = -1;
 		}
 
 	}
@@ -785,7 +759,6 @@ SRT(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 void
 HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-	// Highest Response Ratio Next
 
 	// Initialize array for each process
 	char result[numberOfProcesses][timespan];
@@ -798,10 +771,6 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 	priority_queue<pair<float,int>, vector<pair<float,int>>, myComp2> readyQueue;	
 	priority_queue<pair<float,int>, vector<pair<float,int>>, myComp2> readyQueue_new;
 	priority_queue<pair<float,int>, vector<pair<float,int>>, myComp2> emptyQueue;
-	// // priority_queue<pair<float, int>> readyQueue;
-	// priority_queue<pair<float, int>> readyQueue;
-	// priority_queue<pair<float, int>> readyQueue_new;
-	// priority_queue<pair<float, int>> emptyQueue;
 	int waitingTimes[numberOfProcesses] = {0};
 	bool cpu_free = true;
 	int currIdx = -1;
@@ -855,7 +824,7 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
 			Processes[currIdx]->finish++;
-			currIdx = -1;
+			// currIdx = -1;
 		}
 
 	}
@@ -973,15 +942,6 @@ HRRN(bool status, int timespan, std::vector<Process*> Processes,int numberOfProc
 void
 FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-// Logic
-
-	// First process that arrives is seleced and sent for execution for the
-	// specified time quantum. Process is stopped at a timer (quantum) and gets
-	// sent to the end of the queue. Scheduler selects the next ready process for the same
-	// quantum and iterates again until completion.
-	// Initialize Queue
-	// Initialize array for each process
-	// cout << "Quantum is: " << quantum << endl;
 	int quantum = 1;
 	char result[numberOfProcesses][timespan];
 	int quantumList[numberOfProcesses] = {0};
@@ -1015,7 +975,6 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				// Push process index in RQ that is suitable to its 
 				// prioriry, RQ0 because it has just arrived.
-				// cout << "Pushing " << j << " into Queue." << endl;
 				RQ0.push(j);
 				queueStatus[0]++;
 			}
@@ -1092,7 +1051,6 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->tempService--;
 			result[currIdx][i] = '*';
 			quantumList[currIdx]++;
-			// Check if no other processes come in the next time slot
 			int count = 0;
 			for (int j=0; j < numberOfProcesses; j++)
 			{
@@ -1140,8 +1098,6 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 					}
 					queueStatus[queueTracker[currIdx]]++;
 				}
-				// cout << "Quantum done, pushed back to queue." << endl;
-				// cout << "Pushing " << currIdx << " into Queue." << endl;
 				quantumList[currIdx] = 0;
 				cpu_free = true;
 		
@@ -1155,7 +1111,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.0 / Processes[currIdx]->service)*1.0;
 			Processes[currIdx]->finish++;
-			currIdx = -1;
+			// currIdx = -1;
 
 		}
 
@@ -1273,16 +1229,6 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 void
 FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-
-// Logic
-
-	// First process that arrives is seleced and sent for execution for the
-	// specified time quantum. Process is stopped at a timer (quantum) and gets
-	// sent to the end of the queue. Scheduler selects the next ready process for the same
-	// quantum and iterates again until completion.
-	// Initialize Queue
-	// Initialize array for each process
-	// cout << "Quantum is: " << quantum << endl;
 	int quantum;
 	char result[numberOfProcesses][timespan];
 	int quantumList[numberOfProcesses] = {0};
@@ -1317,7 +1263,6 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			{
 				// Push process index in RQ that is suitable to its 
 				// prioriry, RQ0 because it has just arrived.
-				// cout << "Pushing " << j << " into Queue." << endl;
 				RQ0.push(j);
 				queueStatus[0]++;
 			}
@@ -1427,7 +1372,6 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				queueTracker[currIdx]++;
 				if(Processes[currIdx]->tempService != 0)
 				{
-					// cout << "Pushing " << currIdx << " into Queue " << queueTracker[currIdx] << endl;
 					switch(queueTracker[currIdx])
 					{
 						case 0:
@@ -1463,7 +1407,7 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 			Processes[currIdx]->turn = Processes[currIdx]->finish - Processes[currIdx]->arrival + 1;
 			Processes[currIdx]->norm = (Processes[currIdx]->turn*1.00 / Processes[currIdx]->service*1.00);
 			Processes[currIdx]->finish++;
-			currIdx = -1;
+			// currIdx = -1;
 		}
 
 		}		
@@ -1674,8 +1618,6 @@ AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfPro
 }
 
 
-// FUNCTIONS OF SCHEDULER
-
 Scheduler::Scheduler()
 {
 	numberSimpleSchedulers = 0;
@@ -1690,18 +1632,6 @@ Scheduler::insertProcess(Process* P)
 {
 	listProcesses.push_back(P);
 }
-void
-Scheduler::print()
-{
-	cout << "WELCOME TO OUR SIMPLE SCHEDULER" << endl;
-	cout << "1- Mode of visualization: " << status << endl;
-	cout << "2- Scheduling policies: " << numberSimpleSchedulers << endl;
-	cout << "3- Timespan: " << timespan << endl;
-	cout << "4- Number of processes: " << numberOfProcesses << endl;
-	cout << "5- Processes: " << listProcesses[1]->name << endl;
-}
-
-// FUNCTIONS OF SIMPLE SCHEDULER
 
 SimpleScheduler::SimpleScheduler()
 {
@@ -1740,11 +1670,6 @@ SimpleScheduler::execute(bool status, int timespan, std::vector<Process*> Proces
 	}
 }
 
-
-
-
-// FUNCTIONS OF PROCESS
-
 Process::Process()
 {
 	priority = 0;
@@ -1755,7 +1680,6 @@ Scheduler* S = new Scheduler;
 
 vector<string> parseInput()
 {
-	// Taking input from user in the following format:
 
 	/*
 	LINE 1: STATS/ TRACE
@@ -1781,7 +1705,6 @@ vector<string> parseInput()
     // cout << numberOfProcesses << endl;
 
 	// Loop over processes and store them in an array proccesses
-
 	for(int i=0; i< stoi(numberOfProcesses);i++)
 	{
 		string temp;
@@ -1800,7 +1723,6 @@ vector<string> parseInput()
 
 	// Creating new simple schedulers according to different policies
 	// Parse comma-separated string 
-
 	vector <string> policiesParsedList;
 	regex reg("[, ]+");
     sregex_token_iterator iter(policiesList.begin(), policiesList.end(), reg, -1);
@@ -1875,7 +1797,6 @@ main()
 	for(int i = 0; i < S->numberSimpleSchedulers; i++)
 	{
 		S->listSimpleSchedulers[i]->execute(S->status, S->timespan, S->listProcesses, S->numberOfProcesses);	
-		// WILL MAKE IT A SEPARATE FUNCTION LATER, UPDATE THE REFERENCE TO PROCESSES
 		S->listProcesses.clear();
 		for (int i = 0; i < S->numberOfProcesses; i++ )
 	{
