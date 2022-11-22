@@ -1378,9 +1378,13 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 
 		if(!cpu_free && currIdx != -1)
 		{
-			Processes[currIdx]->tempService--;
-			result[currIdx][i] = '*';
-			quantumList[currIdx]++;
+
+			if (quantumList[currIdx] != quantum) {
+				Processes[currIdx]->tempService--;
+				result[currIdx][i] = '*';
+				quantumList[currIdx]++;
+			}
+			int waiting = 0;
 			int count = 0;
 			for (int j=0; j < numberOfProcesses; j++)
 			{
@@ -1400,7 +1404,8 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				{
 					queueTracker[currIdx]--;
 				}
-
+				
+				// Preemption and Sending to another Queue
 				queueTracker[currIdx]++;
 				if(Processes[currIdx]->tempService != 0)
 				{
@@ -1425,11 +1430,12 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 							RQ5.push(currIdx);
 							break;
 					}
-				}
+				
 				queueStatus[queueTracker[currIdx]]++;
 				quantumList[currIdx] = 0;
 				cpu_free = true;
 			}	
+			}
 		}
 		if (Processes[currIdx]->tempService == 0)
 		{
