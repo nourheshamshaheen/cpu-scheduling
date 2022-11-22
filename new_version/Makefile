@@ -1,4 +1,6 @@
-lab4: 
+.PHONY: clean
+
+lab4:   clean
 	g++ -o lab4 scheduling.cc
 
 clean:

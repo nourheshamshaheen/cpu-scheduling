@@ -1,5 +1,5 @@
 // Lara HossamElDin Mostafa	6853
-// Nour Hesham Shaheen 7150
+// Nour Hesham Shaheen 		7150
 
 #include <iostream>
 #include <string>
@@ -14,6 +14,11 @@ using namespace std;
 
 
 // utils
+
+Triple::Triple()
+{
+}
+
 
 struct myComp {
     constexpr bool operator()(
@@ -40,6 +45,33 @@ struct myComp2 {
         return x.first < y.first;
     }
 };
+
+struct myComp3{
+	constexpr bool operator()(
+        Triple const& x,
+        Triple const& y)
+        const noexcept
+    {
+		if(x.a == y.a){
+			if(x.b == y.b)
+				return x.c > y.c;
+			return x.b < y.b;
+		}		
+        return x.a < y.a;
+    }
+
+};
+
+void utility(priority_queue<Triple, vector<Triple>, myComp3> q)
+{
+	priority_queue<Triple, vector<Triple>, myComp3> pq = q;
+	size_t size = pq.size();
+	for(int i = 0; i < size; ++i) {
+    cout << pq.top().a << " " << pq.top().b << " " << pq.top().c << "; ";
+    pq.pop();
+	}
+	cout << endl;
+}
 
 void
 FCFS(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
@@ -1533,21 +1565,26 @@ AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfPro
 				result[a][b]=' ';
 				}
 	}
-	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> readyQueue;
-	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> readyQueue_new;
-	priority_queue<pair<int,int>, vector<pair<int,int>>, myComp> emptyQueue;	
+	priority_queue<Triple, vector<Triple>, myComp3> readyQueue;
+	priority_queue<Triple, vector<Triple>, myComp3> readyQueue_new;
+	priority_queue<Triple, vector<Triple>, myComp3> emptyQueue;	
 	// priority_queue<pair<int, int>> readyQueue;
 	bool cpu_free = true;
 	int currIdx = -1;
 	for (int i = 0; i < timespan; i++)
 	{
+		// cout << "I = " << i << endl;
 		// Check if new process arrives
 		for (int j=0; j < numberOfProcesses; j++)
 		{
 			if(Processes[j]->arrival == i)
 			{
 				// Push process service time in ready Queue
-				readyQueue.push(make_pair(Processes[j]->priority, j));
+				Triple t;
+				t.a = Processes[j]->priority;
+				t.b = 0;
+				t.c = j;
+				readyQueue.push(t);
 			}
 			if(Processes[j]->arrival <= i)
 			{
@@ -1557,13 +1594,29 @@ AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfPro
 		}
 		if(current_quantum <= 0)
 		{
+			while(!readyQueue.empty())
+			{
+				Triple top = readyQueue.top();
+				top.a = top.a + 1;
+				int l = top.c;
+				top.b = top.b + 1;
+				readyQueue.pop();
+				readyQueue_new.push(top);
+			}
+			readyQueue = readyQueue_new;
+			readyQueue_new = emptyQueue;
 			cpu_free = true;
-			readyQueue.push(make_pair(Processes[currIdx]->priority, currIdx));
+			Triple t;
+			t.a = Processes[currIdx]->priority;
+			t.b = 0;
+			t.c = currIdx;
+			readyQueue.push(t);
+
 		}
 		if (!readyQueue.empty() && cpu_free)
 		{
-			pair<int, int> top = readyQueue.top();
-			currIdx = top.second;
+			Triple top = readyQueue.top();
+			currIdx = top.c;
 			readyQueue.pop();
 			cpu_free = false;
 			current_quantum = quantum;
@@ -1573,21 +1626,13 @@ AGING(bool status, int timespan, std::vector<Process*> Processes,int numberOfPro
 			result[currIdx][i] = '*';
 			current_quantum--;
 		}
-		while(!readyQueue.empty())
-		{
-			pair<int, int> top = readyQueue.top();
-			int tempPriority = top.first + 1;
-			int l = top.second;
-			readyQueue.pop();
-			readyQueue_new.push(make_pair(tempPriority, l));
-		}
-		readyQueue = readyQueue_new;
-		readyQueue_new = emptyQueue;
+		// if(currIdx != -1) cout << Processes[currIdx]->priority << " 0 " << currIdx << " "<< endl;
+		// utility(readyQueue);
 	}
 			// TRACE
 	if(status == 0)
 	{
-		cout << "AGING ";
+		cout << "Aging ";
 		for(int a = 0; a <= timespan; a++)
 		{
 			if(a>9)
