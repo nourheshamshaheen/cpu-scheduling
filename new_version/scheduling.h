@@ -2,6 +2,13 @@
 #define scheduling_h
 #include <vector>
 
+
+struct Triple{
+    int a;
+    int b;
+    int c;
+    Triple();
+};
 struct Process{
     char name;
     int arrival;
