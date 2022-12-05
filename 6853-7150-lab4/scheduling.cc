@@ -1261,7 +1261,7 @@ FB1(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 void
 FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProcesses)
 {
-	int quantum;
+	int quantum = 0;
 	char result[numberOfProcesses][timespan];
 	int quantumList[numberOfProcesses] = {0};
 	int doneList[numberOfProcesses]={0};
@@ -1400,13 +1400,14 @@ FB2(bool status, int timespan, std::vector<Process*> Processes,int numberOfProce
 				{
 					sum+=queueStatus[i];
 				}
-				if (Processes[currIdx]->tempService != 0 && queueStatus[queueTracker[currIdx]]-sum == 0 && count==0)
+				if (Processes[currIdx]->tempService != 0 && queueStatus[queueTracker[currIdx]]-sum == 0 && count==0 && queueStatus[queueTracker[currIdx]]==0)
 				{
 					queueTracker[currIdx]--;
 				}
 				
 				// Preemption and Sending to another Queue
 				queueTracker[currIdx]++;
+
 				if(Processes[currIdx]->tempService != 0)
 				{
 					switch(queueTracker[currIdx])
